@@ -2,7 +2,9 @@
 
 hash_map::hash_map(size_t capacity)
 {
+    _size = 0;
     _capacity = capacity;
+    _head = new hash_list[_capacity];
 }
 
 hash_map::hash_map(const hash_map &other)
@@ -42,7 +44,14 @@ hash_map &hash_map::operator=(const hash_map &other)
 
 void hash_map::insert(int key, float value)
 {
-    _head[std::abs(key) % _capacity].insert(key, value);
+    size_t index = std::abs(key) % _capacity;
+
+    if (!_head[index].get_value(key).has_value())
+    {
+        _size++;
+    }
+
+    _head[index].insert(key, value);
 }
 
 std::optional<float> hash_map::get_value(int key) const
@@ -52,7 +61,15 @@ std::optional<float> hash_map::get_value(int key) const
 
 bool hash_map::remove(int key)
 {
-    return _head[std::abs(key) % _capacity].remove(key);
+    size_t index = std::abs(key) % _capacity;
+
+    if (_head[index].remove(key))
+    {
+        _size--;
+        return true;
+    }
+
+    return false;
 }
 
 size_t hash_map::get_capacity() const
@@ -68,9 +85,10 @@ void hash_map::get_all_keys(int *keys)
         _head[i].reset_iter();
         while (!_head[i].iter_at_end())
         {
-            std::pair p = _head[i].get_iter_value();
+            std::optional<std::pair<const int *, float *>> p = _head[i].get_iter_value();
 
-            keys[index++] = *p->first;
+            if (p.has_value())
+                keys[index++] = *p->first;
             _head[i].increment_iter();
         }
     }
