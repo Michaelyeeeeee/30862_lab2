@@ -94,6 +94,11 @@ void hash_map::get_all_keys(int *keys)
     }
 }
 
+size_t hash_map::get_size() const
+{
+    return _size;
+}
+
 void hash_map::get_bucket_sizes(size_t *buckets)
 {
     for (size_t i = 0; i < _capacity; i++)
